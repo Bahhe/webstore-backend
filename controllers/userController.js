@@ -1,5 +1,5 @@
-const User = require('../models/User')
-const bcrypt = require('bcrypt')
+const User = require("../models/User")
+const bcrypt = require("bcrypt")
 
 // desc Get all users
 // route GET /users
@@ -9,9 +9,9 @@ const getAllUsers = async (req, res) => {
   const query = req.query.new
   const users = query
     ? await User.find().sort({ _id: -1 }).limit(5)
-    : await User.find().select('-password').lean()
+    : await User.find().select("-password").lean()
   if (!users) {
-    return res.status(400).json({ message: 'No user found' })
+    return res.status(400).json({ message: "No user found" })
   }
 
   res.json(users)
@@ -32,13 +32,13 @@ const getUsersStats = async (req, res) => {
     {
       $project: {
         month: {
-          $month: '$createdAt',
+          $month: "$createdAt",
         },
       },
     },
     {
       $group: {
-        _id: '$month',
+        _id: "$month",
         total: {
           $sum: 1,
         },
@@ -47,7 +47,7 @@ const getUsersStats = async (req, res) => {
   ])
 
   if (!stats) {
-    res.status(400).json({ message: 'Somthing went wrong' })
+    res.status(400).json({ message: "Somthing went wrong" })
   }
 
   res.json(stats)
@@ -61,7 +61,7 @@ const createNewUser = async (req, res) => {
   const { firstName, lastName, email, password } = req.body
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'All fields are required' })
+    return res.status(400).json({ message: "All fields are required" })
   }
 
   const duplicateEmail = await User.findOne({ email }).lean().exec()
@@ -69,7 +69,7 @@ const createNewUser = async (req, res) => {
   if (duplicateEmail) {
     return res
       .status(409)
-      .json({ message: 'this Email address is already assigned to an account' })
+      .json({ message: "this Email address is already assigned to an account" })
   }
 
   const hashedPassword = await bcrypt.hash(password, 10)
@@ -88,7 +88,7 @@ const createNewUser = async (req, res) => {
       .status(201)
       .json({ message: `New user ${firstName} ${lastName} created` })
   } else {
-    res.status(400).json({ message: 'Invalid user data received' })
+    res.status(400).json({ message: "Invalid user data received" })
   }
 }
 
@@ -97,32 +97,27 @@ const createNewUser = async (req, res) => {
 // access Private
 
 const updateUser = async (req, res) => {
-  const { id, password, email } = req.body
+  const { id, firstName, lastName, email } = req.body.user
 
   if (!id) {
-    return res.status(400).json({ message: 'Please enter your id' })
-  }
-
-  if (email) {
-    return res.status(400).json({ message: "you can't change your email" })
+    return res.status(400).json({ message: "ID required" })
   }
 
   const user = await User.findById(id).exec()
 
   if (!user) {
-    return res.status(400).json({ message: 'User not found' })
+    return res.status(400).json({ message: "User not found" })
   }
 
   const duplicate = await User.findOne({ email }).lean().exec()
 
   if (duplicate && duplicate?._id.toString() !== id) {
-    return res.status(409).json({ message: 'email already exists' })
+    return res.status(409).json({ message: "email already exists" })
   }
 
   user.email = email
-  if (password) {
-    user.password = await bcrypt.hash(password, 10)
-  }
+  user.firstName = firstName
+  user.lastName = lastName
 
   const updatedUser = await user.save()
 
@@ -137,13 +132,13 @@ const deleteUser = async (req, res) => {
   const { id } = req.body
 
   if (!id) {
-    return res.status(400).json({ message: 'User ID required' })
+    return res.status(400).json({ message: "User ID required" })
   }
 
   const user = await User.findById(id).exec()
 
   if (!user) {
-    return res.status(400).json({ message: 'User not found' })
+    return res.status(400).json({ message: "User not found" })
   }
 
   const result = await user.deleteOne()

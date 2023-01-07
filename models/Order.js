@@ -1,31 +1,31 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose")
 
 const OrderSchema = new mongoose.Schema(
   {
-    userId: {
+    products: {
+      type: [String],
+    },
+    email: {
       type: String,
     },
-    products: [
-      {
-        productId: {
-          type: String,
-        },
-        quantity: {
-          type: Number,
-          default: 1,
-        },
-      },
-    ],
-    amount: {
-      type: Number,
-      required: true,
+    firstName: {
+      type: String,
     },
-    address: {
-      type: Object,
+    lastName: {
+      type: String,
+    },
+    city: {
+      type: String,
+    },
+    number: {
+      type: String,
+    },
+    shipping: {
+      type: String,
     },
     status: {
       type: String,
-      default: 'pending',
+      default: "waiting",
     },
   },
   {
@@ -33,4 +33,4 @@ const OrderSchema = new mongoose.Schema(
   }
 )
 
-module.exports = mongoose.model('Order', OrderSchema)
+module.exports = mongoose.model("Order", OrderSchema)
