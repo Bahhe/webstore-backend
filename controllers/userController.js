@@ -97,7 +97,17 @@ const createNewUser = async (req, res) => {
 // access Private
 
 const updateUser = async (req, res) => {
-  const { id, firstName, lastName, email } = req.body.user
+  const {
+    id,
+    firstName,
+    lastName,
+    email,
+    address,
+    number,
+    password,
+    city,
+    newsLetter,
+  } = req.body.user
 
   if (!id) {
     return res.status(400).json({ message: "ID required" })
@@ -118,6 +128,14 @@ const updateUser = async (req, res) => {
   user.email = email
   user.firstName = firstName
   user.lastName = lastName
+  user.address = address
+  user.number = number
+  user.city = city
+  user.newsLetter = newsLetter
+
+  if (password) {
+    user.password = await bcrypt.hash(password, 10)
+  }
 
   const updatedUser = await user.save()
 

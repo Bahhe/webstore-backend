@@ -11,8 +11,21 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
     },
+    address: {
+      type: String,
+    },
+    number: {
+      type: String,
+    },
+    city: {
+      type: String,
+    },
     password: {
       type: String,
+    },
+    newsLetter: {
+      type: Boolean,
+      default: false,
     },
     isAdmin: {
       type: Boolean,
