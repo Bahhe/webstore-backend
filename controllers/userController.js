@@ -13,12 +13,30 @@ const getAllUsers = async (req, res) => {
   res.json(users)
 }
 
+//@desc Get a user
+//@route GET /users
+//@access public
+const getUser = async (req, res) => {
+  const id = req.params.id
+  if (!id) {
+    res.status(400).json({ message: "ID required" })
+  }
+  if (id.length !== 24) {
+    res.status(400).json({ message: "ID is not valid" })
+  }
+  const user = await User.findById(id).select("-password").lean()
+  if (!user) {
+    res.status(400).json({ message: "User doesn't exist" })
+  }
+  res.json(user)
+}
+
 // desc Create new user
 // route POST /users
 // access Private
 
 const createNewUser = async (req, res) => {
-  const { firstName, lastName, email, password } = req.body
+  const { firstName, lastName, email, password, newsLetter } = req.body
 
   if (!email || !password) {
     return res.status(400).json({ message: "All fields are required" })
@@ -38,6 +56,7 @@ const createNewUser = async (req, res) => {
     firstName,
     lastName,
     email,
+    newsLetter,
     password: hashedPassword,
   }
 
@@ -128,6 +147,7 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
   getAllUsers,
+  getUser,
   createNewUser,
   updateUser,
   deleteUser,

@@ -9,4 +9,6 @@ router
   .delete(verifyJWT, userController.deleteUser)
   .patch(verifyJWT, userController.updateUser)
 
+router.route("/:id").get(userController.getUser)
+
 module.exports = router

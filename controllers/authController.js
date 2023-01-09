@@ -1,6 +1,6 @@
-const User = require('../models/User')
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
+const User = require("../models/User")
+const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt")
 
 //@desc Login
 //@route POST auth/
@@ -9,16 +9,18 @@ const login = async (req, res) => {
   const { email, password } = req.body
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'All fields are required' })
+    return res.status(400).json({ message: "All fields are required" })
   }
 
   const foundUser = await User.findOne({ email }).exec()
   if (!foundUser) {
-    return res.status(401).json({ message: 'Unauthorized' })
+    return res
+      .status(401)
+      .json({ message: "No account is linked to this email" })
   }
   const match = await bcrypt.compare(password, foundUser.password)
   if (!match) {
-    return res.status(401).json({ message: 'Unauthorized' })
+    return res.status(401).json({ message: "Wrong credentials" })
   }
 
   // JWT STARTS
@@ -31,20 +33,20 @@ const login = async (req, res) => {
       },
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: '15m' }
+    { expiresIn: "15m" }
   )
   const refreshToken = jwt.sign(
     {
       email: foundUser.email,
     },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: "7d" }
   )
 
-  res.cookie('jwt', refreshToken, {
+  res.cookie("jwt", refreshToken, {
     httpOnly: true,
     secure: true,
-    sameSite: 'None',
+    sameSite: "None",
     maxAge: 7 * 24 * 60 * 1000,
   })
   // JWT ENDS
@@ -57,7 +59,8 @@ const login = async (req, res) => {
 //@access public
 const refresh = (req, res) => {
   const cookies = req.cookies
-  if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' })
+  console.log(cookies)
+  if (!cookies?.jwt) return res.status(401).json({ message: "Unauthorized" })
 
   const refreshToken = cookies.jwt
 
@@ -65,14 +68,14 @@ const refresh = (req, res) => {
     refreshToken,
     process.env.REFRESH_TOKEN_SECRET,
     async (err, decoded) => {
-      if (err) return res.status(403).json({ message: 'Forbidden' })
+      if (err) return res.status(403).json({ message: "Forbidden" })
 
       const foundEmail = await User.findOne({
         email: decoded.email,
       }).exec()
 
       if (!foundEmail) {
-        return res.status(401).json({ message: 'Unauthorized' })
+        return res.status(401).json({ message: "Unauthorized" })
       }
 
       const accessToken = jwt.sign(
@@ -84,7 +87,7 @@ const refresh = (req, res) => {
           },
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: "15m" }
       )
 
       res.json({ accessToken })
@@ -98,8 +101,8 @@ const refresh = (req, res) => {
 const logout = (req, res) => {
   const cookies = req.cookies
   if (!cookies?.jwt) return res.sendStatus(204)
-  res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true })
-  res.json({ message: 'Cookie cleared' })
+  res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true })
+  res.json({ message: "Cookie cleared" })
 }
 
 module.exports = {
