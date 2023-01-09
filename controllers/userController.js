@@ -6,51 +6,11 @@ const bcrypt = require("bcrypt")
 // access Private
 
 const getAllUsers = async (req, res) => {
-  const query = req.query.new
-  const users = query
-    ? await User.find().sort({ _id: -1 }).limit(5)
-    : await User.find().select("-password").lean()
+  const users = await User.find().lean()
   if (!users) {
     return res.status(400).json({ message: "No user found" })
   }
-
   res.json(users)
-}
-
-// desc Get users statistics
-// route GET /stats/users
-// access Private
-
-const getUsersStats = async (req, res) => {
-  const date = new Date()
-  const lastYear = new Date(date.setFullYear(date.getFullYear() - 1))
-
-  const stats = await User.aggregate([
-    {
-      $match: { createdAt: { $gt: lastYear } },
-    },
-    {
-      $project: {
-        month: {
-          $month: "$createdAt",
-        },
-      },
-    },
-    {
-      $group: {
-        _id: "$month",
-        total: {
-          $sum: 1,
-        },
-      },
-    },
-  ])
-
-  if (!stats) {
-    res.status(400).json({ message: "Somthing went wrong" })
-  }
-
-  res.json(stats)
 }
 
 // desc Create new user
@@ -168,7 +128,6 @@ const deleteUser = async (req, res) => {
 
 module.exports = {
   getAllUsers,
-  getUsersStats,
   createNewUser,
   updateUser,
   deleteUser,

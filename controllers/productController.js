@@ -39,15 +39,12 @@ const listProducts = async (req, res) => {
   if (sort === "newest") {
     sort = { createdAt: -1 }
   }
-
   if (sort === "lowest") {
     sort = { price: 1 }
   }
-
   if (sort === "highest") {
     sort = { price: -1 }
   }
-
   const products = await Product.find({
     title: { $regex: search, $options: "i" },
   })
@@ -57,87 +54,8 @@ const listProducts = async (req, res) => {
     .skip(page * limit)
     .limit(limit)
 
-  const allProducts = await Product.find().lean()
-  const totalProducts = allProducts?.length
-
   const total = await Product.countDocuments({
     categories: { $in: [...category] },
-    title: { $regex: search, $options: "i" },
-  })
-  const chromebook = await Product.countDocuments({
-    categories: { $in: "chromebook" },
-    title: { $regex: search, $options: "i" },
-  })
-  const allInOne = await Product.countDocuments({
-    categories: { $in: "allInOne" },
-    title: { $regex: search, $options: "i" },
-  })
-  const gaming = await Product.countDocuments({
-    categories: { $in: "gaming" },
-    title: { $regex: search, $options: "i" },
-  })
-  const apple = await Product.countDocuments({
-    categories: { $in: "apple" },
-    title: { $regex: search, $options: "i" },
-  })
-  const tablet = await Product.countDocuments({
-    categories: { $in: "tablet" },
-    title: { $regex: search, $options: "i" },
-  })
-  const acer = await Product.countDocuments({
-    categories: { $in: "acer" },
-    title: { $regex: search, $options: "i" },
-  })
-  const toshiba = await Product.countDocuments({
-    categories: { $in: "toshiba" },
-    title: { $regex: search, $options: "i" },
-  })
-  const dell = await Product.countDocuments({
-    categories: { $in: "dell" },
-    title: { $regex: search, $options: "i" },
-  })
-  const hp = await Product.countDocuments({
-    categories: { $in: "hp" },
-    title: { $regex: search, $options: "i" },
-  })
-  const lenovo = await Product.countDocuments({
-    categories: { $in: "lenovo" },
-    title: { $regex: search, $options: "i" },
-  })
-  const samsung = await Product.countDocuments({
-    categories: { $in: "samsung" },
-    title: { $regex: search, $options: "i" },
-  })
-  const lg = await Product.countDocuments({
-    categories: { $in: "lg" },
-    title: { $regex: search, $options: "i" },
-  })
-  const condor = await Product.countDocuments({
-    categories: { $in: "condor" },
-    title: { $regex: search, $options: "i" },
-  })
-  const wiseTech = await Product.countDocuments({
-    categories: { $in: "wiseTech" },
-    title: { $regex: search, $options: "i" },
-  })
-  const honor = await Product.countDocuments({
-    categories: { $in: "honor" },
-    title: { $regex: search, $options: "i" },
-  })
-  const asus = await Product.countDocuments({
-    categories: { $in: "asus" },
-    title: { $regex: search, $options: "i" },
-  })
-  const fujitsu = await Product.countDocuments({
-    categories: { $in: "fujitsu" },
-    title: { $regex: search, $options: "i" },
-  })
-  const touchScreen = await Product.countDocuments({
-    categories: { $in: "touchScreen" },
-    title: { $regex: search, $options: "i" },
-  })
-  const msi = await Product.countDocuments({
-    categories: { $in: "msi" },
     title: { $regex: search, $options: "i" },
   })
 
@@ -145,27 +63,7 @@ const listProducts = async (req, res) => {
     error: false,
     total,
     page: page + 1,
-    totalProducts,
     limit,
-    allInOne,
-    msi,
-    chromebook,
-    gaming,
-    apple,
-    tablet,
-    touchScreen,
-    acer,
-    toshiba,
-    dell,
-    hp,
-    lenovo,
-    samsung,
-    lg,
-    condor,
-    wiseTech,
-    honor,
-    asus,
-    fujitsu,
     category: categories,
     products,
   }
@@ -188,21 +86,16 @@ const getAllProducts = async (req, res) => {
 //@access public
 const getProduct = async (req, res) => {
   const id = req.params.id
-
   if (!id) {
     res.status(400).json({ message: "ID required" })
   }
-
   if (id.length !== 24) {
     res.status(400).json({ message: "ID is not valid" })
   }
-
   const product = await Product.findById(id).exec()
-
   if (!product) {
     res.status(400).json({ message: "Product doesn't exist" })
   }
-
   res.json(product)
 }
 
@@ -231,13 +124,10 @@ const createNewProduct = async (req, res) => {
         "Thease fileds are required: title, desc, img, categories, price",
     })
   }
-
   const duplicate = await Product.findOne({ title }).lean().exec()
-
   if (duplicate) {
     return res.status(409).json({ message: "Duplicate titles" })
   }
-
   const productObject = {
     title,
     desc,
@@ -257,7 +147,6 @@ const createNewProduct = async (req, res) => {
     res.status(400).json({ message: "Invalid product data" })
   }
   const savedProduct = await Product.create(productObject)
-
   res.status(200).json(`New product created: ${savedProduct.title}`)
 }
 
@@ -316,19 +205,14 @@ const updateProduct = async (req, res) => {
 //@access private
 const deleteProduct = async (req, res) => {
   const { id } = req.body
-
   if (!id) {
     res.status(400).json({ message: "ID required" })
   }
-
   const product = await Product.findById(id).exec()
-
   if (!product) {
     res.status(400).json({ message: "Product doesn't exist" })
   }
-
   const deletedProduct = await product.deleteOne()
-
   res.json(`Product ${deletedProduct.title} with ID ${product._id} deleted`)
 }
 

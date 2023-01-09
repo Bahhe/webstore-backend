@@ -30,7 +30,6 @@ app.use("/", require("./routes/root"))
 app.use("/auth", require("./routes/authRoutes"))
 app.use("/users", require("./routes/userRoutes"))
 app.use("/products", require("./routes/productRoutes"))
-app.use("/carts", require("./routes/cartRoutes"))
 app.use("/orders", require("./routes/orderRoutes"))
 
 app.all("*", (req, res) => {

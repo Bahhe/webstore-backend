@@ -1,14 +1,12 @@
 const router = require("express").Router()
 const userController = require("../controllers/userController")
-// const verifyJWT = require('../middleware/verifyJWT')
+const { verifyJWT, verifyTokenAndAdmin } = require("../middleware/verifyJWT")
 
 router
   .route("/")
-  .get(/*verifyJWT, */ userController.getAllUsers)
+  .get(verifyTokenAndAdmin, userController.getAllUsers)
   .post(userController.createNewUser)
-  .delete(/*verifyJWT, */ userController.deleteUser)
-  .patch(/*verifyJWT, */ userController.updateUser)
-
-router.route("/stats").get(/*verifyJWT, */ userController.getUsersStats)
+  .delete(verifyJWT, userController.deleteUser)
+  .patch(verifyJWT, userController.updateUser)
 
 module.exports = router

@@ -44,19 +44,15 @@ const getAllOrders = async (req, res) => {
 //@Access private
 const deleteOrder = async (req, res) => {
   const { id } = req.body
-
   if (!id) {
     res.status(400).json({ message: "ID required" })
   }
-
   const order = await Order.findById(id).exec()
 
   if (!order) {
     res.status(400).json({ message: "Order doesn't exist" })
   }
-
   const deletedOrder = await order.deleteOne()
-
   res.json(`Order with id ${deletedOrder.id} deleted`)
 }
 
@@ -65,17 +61,12 @@ const deleteOrder = async (req, res) => {
 //@Access private
 const updateOrder = async (req, res) => {
   const { id, status } = req.body.order
-
   const order = await Order.findById(id).exec()
-
   if (!order) {
     res.status(400).json({ message: "Order not found" })
   }
-
   order.status = status
-
   const updatedOrder = await order.save()
-
   res.json(`'${updatedOrder.id}' updated`)
 }
 
