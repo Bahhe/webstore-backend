@@ -4,7 +4,6 @@ const Order = require("./../models/Order")
 //@Route POST /order
 //@Access Public
 const createNewOrder = async (req, res) => {
-  console.log(req.body)
   const { products, email, firstName, lastName, city, number, shipping } =
     req.body
 
