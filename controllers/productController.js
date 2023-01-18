@@ -5,7 +5,7 @@ const Product = require("../models/Product")
 //@access public
 const listProducts = async (req, res) => {
   const page = parseInt(req.query.page) - 1 || 0
-  const limit = parseInt(req.query.limit) || 5
+  const limit = parseInt(req.query.limit) || 6
   const search = req.query.search || ""
   let sort = req.query.sort || "newest"
   let category = req.query.category || "all"
@@ -18,18 +18,11 @@ const listProducts = async (req, res) => {
     "tablet",
     "touchScreen",
     "acer",
-    "toshiba",
     "dell",
     "hp",
     "lenovo",
-    "samsung",
-    "lg",
-    "condor",
-    "wiseTech",
-    "honor",
     "asus",
-    "fujitsu",
-    "msi",
+    "other",
   ]
 
   category === "all"
@@ -124,10 +117,7 @@ const createNewProduct = async (req, res) => {
         "Thease fileds are required: title, desc, img, categories, price",
     })
   }
-  const duplicate = await Product.findOne({ title }).lean().exec()
-  if (duplicate) {
-    return res.status(409).json({ message: "Duplicate titles" })
-  }
+
   const productObject = {
     title,
     desc,
@@ -174,12 +164,6 @@ const updateProduct = async (req, res) => {
 
   if (!product) {
     res.status(400).json({ message: "Product not found" })
-  }
-
-  const duplicate = await Product.findOne({ title }).lean().exec()
-
-  if (duplicate && duplicate?._id.toString() !== id) {
-    return res.status(409).json({ message: "Duplicate product title" })
   }
 
   product.title = title
