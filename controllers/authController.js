@@ -33,7 +33,7 @@ const login = async (req, res) => {
       },
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "15m" }
   )
   const refreshToken = jwt.sign(
     {
@@ -47,7 +47,7 @@ const login = async (req, res) => {
     httpOnly: true,
     secure: true,
     sameSite: "None",
-    maxAge: 7 * 24 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   })
   // JWT ENDS
 
@@ -59,7 +59,7 @@ const login = async (req, res) => {
 //@access public
 const refresh = (req, res) => {
   const cookies = req.cookies
-  if (!cookies?.jwt) return res.json('not loged in')
+  if (!cookies?.jwt) return res.json('Not logged in')
 
   const refreshToken = cookies.jwt
 
@@ -86,7 +86,7 @@ const refresh = (req, res) => {
           },
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "1d" }
+        { expiresIn: "15m" }
       )
 
       res.json({ accessToken })
