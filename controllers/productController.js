@@ -44,6 +44,7 @@ const listProducts = async (req, res) => {
     .where("categories")
     .in([...category])
     .sort(sort)
+    .collation({ locale: "en_US", numericOrdering: true })
     .skip(page * limit)
     .limit(limit)
 
