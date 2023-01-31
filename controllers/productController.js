@@ -1,4 +1,14 @@
 const Product = require("../models/Product")
+const redis = require("redis")
+
+let redisClient
+;(async () => {
+  redisClient = redis.createClient()
+
+  redisClient.on("error", (error) => console.error(`Error : ${error}`))
+
+  await redisClient.connect()
+})()
 
 //@desc List products
 //@route GET /products
@@ -38,7 +48,9 @@ const listProducts = async (req, res) => {
   if (sort === "highest") {
     sort = { price: -1 }
   }
-  const products = await Product.find({
+
+  let products
+  products = await Product.find({
     title: { $regex: search, $options: "i" },
   })
     .where("categories")
@@ -48,7 +60,8 @@ const listProducts = async (req, res) => {
     .skip(page * limit)
     .limit(limit)
 
-  const total = await Product.countDocuments({
+  let total
+  total = await Product.countDocuments({
     categories: { $in: [...category] },
     title: { $regex: search, $options: "i" },
   })
@@ -68,11 +81,19 @@ const listProducts = async (req, res) => {
 //@route GET /products
 //@access public
 const getAllProducts = async (req, res) => {
-  const products = await Product.find().lean()
-  if (!products) {
-    return res.status(400).json({ message: "something went worng" })
+  let products
+  const cachedProducts = await redisClient.get("products")
+  if (cachedProducts) {
+    products = JSON.parse(cachedProducts)
+    res.json(products)
+  } else {
+    products = await Product.find().lean()
+    if (!products) {
+      return res.status(400).json({ message: "something went worng" })
+    }
+    await redisClient.set("products", JSON.stringify(products))
+    res.json(products)
   }
-  res.json(products)
 }
 
 //@desc Get a product
