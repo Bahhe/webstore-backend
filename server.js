@@ -24,20 +24,7 @@ app.use(express.json())
 
 app.use(cookieParser())
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(
-    '/',
-    express.static(path.join(__dirname, '/webstore-frontend', 'build'))
-  )
-
-  app.get('*', (req, res) => {
-    res.sendFile(
-      path.resolve(__dirname, '/webstore-frontend', 'build', 'index.html')
-    )
-  })
-} else {
-  app.use('/', express.static(path.join(__dirname, '/public')))
-}
+app.use('/', express.static(path.join(__dirname, '/public')))
 
 app.use('/', require('./routes/root'))
 app.use('/auth', require('./routes/authRoutes'))
