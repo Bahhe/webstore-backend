@@ -19,14 +19,11 @@ const getAllUsers = async (req, res) => {
 const getUser = async (req, res) => {
   const id = req.params.id
   if (!id) {
-    res.status(400).json({ message: "ID required" })
-  }
-  if (id.length !== 24) {
-    res.status(400).json({ message: "ID is not valid" })
+   return res.status(400).json({ message: "ID required" })
   }
   const user = await User.findById(id).select("-password").lean()
   if (!user) {
-    res.status(400).json({ message: "User doesn't exist" })
+    return res.status(400).json({ message: "User doesn't exist" })
   }
   res.json(user)
 }
@@ -67,7 +64,7 @@ const createNewUser = async (req, res) => {
       .status(201)
       .json({ message: `New user ${firstName} ${lastName} created` })
   } else {
-    res.status(400).json({ message: "Invalid user data received" })
+    return res.status(400).json({ message: "Invalid user data received" })
   }
 }
 
@@ -127,21 +124,15 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   const { id } = req.body
-
   if (!id) {
     return res.status(400).json({ message: "User ID required" })
   }
-
   const user = await User.findById(id).exec()
-
   if (!user) {
     return res.status(400).json({ message: "User not found" })
   }
-
   const result = await user.deleteOne()
-
   const reply = `Email ${result.email} with ID ${result._id} deleted`
-
   res.json(reply)
 }
 

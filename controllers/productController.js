@@ -1,14 +1,4 @@
-const Product = require("../models/Product")
-const redis = require("redis")
-
-let redisClient
-;(async () => {
-  redisClient = redis.createClient()
-
-  redisClient.on("error", (error) => console.error(`Error : ${error}`))
-
-  await redisClient.connect()
-})()
+const Product = require('../models/Product')
 
 //@desc List products
 //@route GET /products
@@ -16,54 +6,54 @@ let redisClient
 const listProducts = async (req, res) => {
   const page = parseInt(req.query.page) - 1 || 0
   const limit = parseInt(req.query.limit) || 6
-  const search = req.query.search || ""
-  let sort = req.query.sort || "newest"
-  let category = req.query.category || "all"
+  const search = req.query.search || ''
+  let sort = req.query.sort || 'newest'
+  let category = req.query.category || 'all'
 
   const categories = [
-    "allInOne",
-    "chromebook",
-    "gaming",
-    "apple",
-    "tablet",
-    "touchScreen",
-    "acer",
-    "dell",
-    "hp",
-    "lenovo",
-    "asus",
-    "other",
+    'allInOne',
+    'chromebook',
+    'gaming',
+    'apple',
+    'tablet',
+    'touchScreen',
+    'acer',
+    'dell',
+    'hp',
+    'lenovo',
+    'asus',
+    'other',
   ]
 
-  category === "all"
+  category === 'all'
     ? (category = [...categories])
-    : (category = req.query.category.split(","))
+    : (category = req.query.category.split(','))
 
-  if (sort === "newest") {
+  if (sort === 'newest') {
     sort = { createdAt: -1 }
   }
-  if (sort === "lowest") {
+  if (sort === 'lowest') {
     sort = { price: 1 }
   }
-  if (sort === "highest") {
+  if (sort === 'highest') {
     sort = { price: -1 }
   }
 
   let products
   products = await Product.find({
-    title: { $regex: search, $options: "i" },
+    title: { $regex: search, $options: 'i' },
   })
-    .where("categories")
+    .where('categories')
     .in([...category])
     .sort(sort)
-    .collation({ locale: "en_US", numericOrdering: true })
+    .collation({ locale: 'en_US', numericOrdering: true })
     .skip(page * limit)
     .limit(limit)
 
   let total
   total = await Product.countDocuments({
     categories: { $in: [...category] },
-    title: { $regex: search, $options: "i" },
+    title: { $regex: search, $options: 'i' },
   })
 
   const response = {
@@ -81,20 +71,12 @@ const listProducts = async (req, res) => {
 //@route GET /products
 //@access public
 const getAllProducts = async (req, res) => {
-  let products
-  const cachedProducts = await redisClient.get("products")
-  if (cachedProducts) {
-    products = JSON.parse(cachedProducts)
-    res.json(products)
-  } else {
-    products = await Product.find().lean()
+    const products = await Product.find().lean()
     if (!products) {
-      return res.status(400).json({ message: "something went worng" })
+      return res.status(400).json({ message: 'something went worng' })
     }
-    await redisClient.set("products", JSON.stringify(products))
     res.json(products)
   }
-}
 
 //@desc Get a product
 //@route GET /products
@@ -102,16 +84,16 @@ const getAllProducts = async (req, res) => {
 const getProduct = async (req, res) => {
   const id = req.params.id
   if (!id) {
-    res.status(400).json({ message: "ID required" })
+    return res.status(400).json({ message: 'ID required' })
   }
   if (id.length !== 24) {
-    res.status(400).json({ message: "ID is not valid" })
+    return res.status(400).json({ message: 'ID is not valid' })
   }
-  const product = await Product.findById(id).exec()
+  const product = await Product.findOne({ _id: id }).exec()
   if (!product) {
-    res.status(400).json({ message: "Product doesn't exist" })
+    return res.status(400).json({ message: "Product doesn't exist" })
   }
-  res.json(product)
+  return res.json(product)
 }
 
 //@desc Create new product
@@ -136,7 +118,7 @@ const createNewProduct = async (req, res) => {
   if (!title || !desc || !img || !categories || !price) {
     return res.status(400).json({
       message:
-        "Thease fileds are required: title, desc, img, categories, price",
+        'Thease fileds are required: title, desc, img, categories, price',
     })
   }
 
@@ -156,7 +138,7 @@ const createNewProduct = async (req, res) => {
   }
 
   if (!productObject) {
-    res.status(400).json({ message: "Invalid product data" })
+    return res.status(400).json({ message: 'Invalid product data' })
   }
   const savedProduct = await Product.create(productObject)
   res.status(200).json(`New product created: ${savedProduct.title}`)
@@ -185,7 +167,7 @@ const updateProduct = async (req, res) => {
   const product = await Product.findById(id).exec()
 
   if (!product) {
-    res.status(400).json({ message: "Product not found" })
+    return res.status(400).json({ message: 'Product not found' })
   }
 
   product.title = title
@@ -212,14 +194,16 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   const { id } = req.body
   if (!id) {
-    res.status(400).json({ message: "ID required" })
+    return res.status(400).json({ message: 'ID required' })
   }
   const product = await Product.findById(id).exec()
   if (!product) {
-    res.status(400).json({ message: "Product doesn't exist" })
+    return res.status(400).json({ message: "Product doesn't exist" })
   }
   const deletedProduct = await product.deleteOne()
-  res.json(`Product ${deletedProduct.title} with ID ${product._id} deleted`)
+   res.json(
+    `Product ${deletedProduct.title} with ID ${product._id} deleted`
+  )
 }
 
 module.exports = {

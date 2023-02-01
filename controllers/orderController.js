@@ -21,11 +21,11 @@ const createNewOrder = async (req, res) => {
     shipping,
   }
   if (!orderObject) {
-    res.status(400).json({ messge: "invalid order data" })
+    return res.status(400).json({ messge: "invalid order data" })
   }
 
   const savedOrder = await Order.create(orderObject)
-  res.json({ messsage: `New order ${savedOrder} created` })
+  res.json({ message: `New order ${savedOrder} created` })
 }
 
 //@Desc get all orders
@@ -45,12 +45,12 @@ const getAllOrders = async (req, res) => {
 const deleteOrder = async (req, res) => {
   const { id } = req.body
   if (!id) {
-    res.status(400).json({ message: "ID required" })
+    return res.status(400).json({ message: "ID required" })
   }
   const order = await Order.findById(id).exec()
 
   if (!order) {
-    res.status(400).json({ message: "Order doesn't exist" })
+    return res.status(400).json({ message: "Order doesn't exist" })
   }
   const deletedOrder = await order.deleteOne()
   res.json(`Order with id ${deletedOrder.id} deleted`)
@@ -63,7 +63,7 @@ const updateOrder = async (req, res) => {
   const { id, status } = req.body.order
   const order = await Order.findById(id).exec()
   if (!order) {
-    res.status(400).json({ message: "Order not found" })
+    return res.status(400).json({ message: "Order not found" })
   }
   order.status = status
   const updatedOrder = await order.save()
