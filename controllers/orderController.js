@@ -34,7 +34,7 @@ const createNewOrder = async (req, res) => {
 const getAllOrders = async (req, res) => {
   const Orders = await Order.find().lean()
   if (!Orders?.length) {
-    return res.status(400).json({ message: "No orders found" })
+    return res.status(404).json({ message: "No orders found" })
   }
   res.json(Orders)
 }
