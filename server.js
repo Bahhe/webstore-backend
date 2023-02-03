@@ -10,8 +10,10 @@ const { logger, logEvents } = require('./middleware/logger')
 const errorHanlder = require('./middleware/errorHandler')
 const connectDB = require('./config/dbConn')
 const mongoose = require('mongoose')
+const compression = require('compression')
 const PORT = process.env.PORT || 5000
 
+app.use(compression())
 console.log(process.env.NODE_ENV)
 
 connectDB()
